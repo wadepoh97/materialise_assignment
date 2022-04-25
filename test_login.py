@@ -20,7 +20,7 @@ def setup():
 
 @pytest.mark.parametrize("username,password,expected", [
     ("admin@yourstore.com","admin",True),
-    ("admin@yourstore.com","admin",False), 
+    ("admin@yourstore.com","adm",False), 
     ("adm@yourstore.com","admin",False),
     ("adm@yourstore.com","adm",False)])
 def test_login(setup, username, password, expected):
