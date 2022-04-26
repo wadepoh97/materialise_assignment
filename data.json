@@ -1,0 +1,24 @@
+{
+  "test_login": [
+    {
+      "url": "https://admin-demo.nopcommerce.com",
+      "email": "admin@yourstore.com",
+      "password": "admin"
+    },
+    {
+      "url": "https://admin-demo.nopcommerce.com",
+      "email": "admin@yourstore.com",
+      "password": "adm"
+    },
+    {
+      "url": "https://admin-demo.nopcommerce.com",
+      "email": "adm@yourstore.com",
+      "password": "admin"
+    },
+    {
+      "url": "https://admin-demo.nopcommerce.com",
+      "email": "adm@yourstore.com",
+      "password": "adm"
+    }
+  ]
+}

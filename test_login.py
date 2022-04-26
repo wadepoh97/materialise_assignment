@@ -1,35 +1,30 @@
 
 import pytest
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
+
 from selenium.webdriver.common.by import By
-from webdriver_manager.chrome import ChromeDriverManager
+from selenium.common.exceptions import NoSuchElementException  
+from utilities import inject_test_data
 
-@pytest.fixture
-def setup():
-    global driver
-    chromeOptions = Options()
-    chromeOptions.add_argument('--disable-gpu')
-    chromeOptions.add_argument('--headless')
-    chromeOptions.add_argument('--disable-dev-shm-usage')
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chromeOptions)
-    yield
-    driver.close()
-    driver.quit()
+test_data = inject_test_data(file="data.json")
 
-@pytest.mark.parametrize("username,password,expected", [
-    ("admin@yourstore.com","admin",True),
-    ("admin@yourstore.com","adm",False), 
-    ("adm@yourstore.com","admin",False),
-    ("adm@yourstore.com","adm",False)])
-def test_login(setup, username, password, expected):
-    driver.get('https://admin-demo.nopcommerce.com')
+@pytest.mark.parametrize("account", test_data.test_login)
+def test_login(driver, account):
+    driver.get(account.url)
     driver.find_element(By.ID, 'Email').clear()
     driver.find_element(By.ID, 'Password').clear()
-    driver.find_element(By.ID, 'Email').send_keys(username)
-    driver.find_element(By.ID, 'Password').send_keys(password)
+
+    driver.find_element(By.ID, 'Email').send_keys(account.email)
+    driver.find_element(By.ID, 'Password').send_keys(account.password)
     driver.find_element(By.XPATH, "//button[text()='Log in']").click()
 
-    logout = driver.find_element(By.XPATH, "//a[@href='/logout']")
-    logout.click()
+    # if can find logout btn & .Nop.Authentication cookies = valid
+    try:
+        auth = driver.get_cookie('.Nop.Authentication')
+        if auth is None: raise NoSuchElementException 
+        logout = driver.find_element(By.XPATH, "//a[@href='/logout']")
+        logout.click()
+    except NoSuchElementException:
+        err_msg = driver.find_element(By.CLASS_NAME, "message-error")
+        if 'Login was unsuccessful' in err_msg.text: raise Exception('Invalid Credentials')
+        ## assuming the all email format in test data are correct
+        ## if cannot find the message-error will raise here
