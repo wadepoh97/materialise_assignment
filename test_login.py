@@ -24,7 +24,9 @@ def test_login(driver, account):
         logout = driver.find_element(By.XPATH, "//a[@href='/logout']")
         logout.click()
     except NoSuchElementException:
-        err_msg = driver.find_element(By.CLASS_NAME, "message-error")
-        if 'Login was unsuccessful' in err_msg.text: raise Exception('Invalid Credentials')
-        ## assuming the all email format in test data are correct
-        ## if cannot find the message-error will raise here
+        try:
+            err_msg = driver.find_element(By.ID, "Email-error")
+            if 'Wrong email' in err_msg.text: raise Exception('Invalid Email Format')
+        except NoSuchElementException:
+            err_msg = driver.find_element(By.CLASS_NAME, "message-error")
+            if 'Login was unsuccessful' in err_msg.text: raise Exception('Invalid Credentials')
